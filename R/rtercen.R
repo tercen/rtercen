@@ -34,14 +34,14 @@ TercenClient <- R6Class(
         private$clientImpl = UserClient$new(username=username,password=password,authToken=authToken, serviceUri=serviceUri)
       }
     },
+    createComputationTask = function(workflowId,stepId){
+      return (private$clientImpl$createComputationTask(workflowId, stepId))
+    },
     getCubeQuery = function(workflowId, stepId , taskId=NULL){
       return (private$clientImpl$getCubeQuery(workflowId, stepId, taskId=taskId))
     },
     executeCubeQuery = function(cubeQuery) {
       return (private$clientImpl$executeCubeQuery(cubeQuery))
-    },
-    setResult = function(workflowId,stepId,df){
-      return (private$clientImpl$setResult(workflowId,stepId,df))
     }
   )
   
