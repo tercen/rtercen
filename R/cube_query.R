@@ -3,6 +3,9 @@
 #' @export  
 CubeQuery <- R6Class(
   'CubeQuery',
+  private = list(
+    tercenClient = NULL
+  ),
   public = list(
     version=NULL,
     rowColumns=NULL,
@@ -12,7 +15,8 @@ CubeQuery <- R6Class(
     colorColumns=NULL,
     sqlExpr=NULL,
     schemaIds=NULL,
-    initialize = function(json=NULL){
+    initialize = function(tercenClient, json=NULL){
+      private$tercenClient = tercenClient
       if (!is.null(json)){
         self$version=json$version
         self$rowColumns = lapply(json$rowColumns, function(each) CubeFactor$new(json=each))
@@ -28,6 +32,7 @@ CubeQuery <- R6Class(
         self$schemaIds = json$schemaIds
       }
     },
+    execute = function() private$tercenClient$executeCubeQuery(self),
     toJson = function(){
       json = list(
         version=unbox(self$version),
@@ -54,14 +59,13 @@ WorkflowCubeQuery <- R6Class(
   'WorkflowCubeQuery',
   inherit = CubeQuery,
   private = list(
-    tercenClient = NULL,
     workflowId = NULL,
     stepId = NULL
   ),
   public = list(
     initialize = function(tercenClient, workflowId, stepId, json=NULL){
-      super$initialize(json=json)
-      private$tercenClient = tercenClient
+      super$initialize(tercenClient, json=json)
+      
       private$workflowId = workflowId
       private$stepId = stepId
     },
@@ -75,13 +79,11 @@ TaskCubeQuery <- R6Class(
   'TaskCubeQuery',
   inherit = CubeQuery,
   private = list(
-    tercenClient = NULL,
     taskId = NULL
   ),
   public = list(
     initialize = function(tercenClient, taskId, json=NULL){
-      super$initialize(json=json)
-      private$tercenClient = tercenClient
+      super$initialize(tercenClient, json=json)
       private$taskId = taskId
     },
     setResult = function(df){
