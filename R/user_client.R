@@ -94,7 +94,7 @@ UserClient <- R6Class(
       table = ComputedTable$new(df=df)$toTson()
       binaryData = toTSON(table)
       filename = private$setTempFile(binaryData)
-      taskId = private$createComputationTask(workflowId,stepId)
+      taskId = self$createComputationTask(workflowId,stepId)
       private$sendTaskResult(taskId, filename)
     }
   )
