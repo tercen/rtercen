@@ -4,7 +4,7 @@ Title: Tercen R client api
 Version: 1.0
 Date: 2015-11-24
 Author: Alexandre Maurel
-Maintainer: Alexandre Maurel <alexandre.maurel@gmail.com> 
+Maintainer: Alexandre Maurel <alexandre.maurel@gmail.com>
 Description: Access Tercen data, workflow and computation resources with R.
   Build R operator for Tercen.
 License: Apache License Version 2.0
