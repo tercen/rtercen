@@ -22,11 +22,9 @@ CommandBuffer  <- R6Class(
   )
 )
 
- 
+
 commandFactory <- function(json){
-  print(paste0("commandFactory : json :",json))
   name = json$name
-  print(paste0("commandFactory : name :",name))
   command = NULL
   if (name == "SetStepTaskIdCommand"){
     command = SetStepTaskIdCommand$new(json=json)
@@ -43,16 +41,14 @@ commandFactory <- function(json){
   }
   return (command)
 }
- 
+
 Command <- R6Class(
   'Command',
   public = list(
     name=NULL,
     data=NULL,
     initialize = function(json=json){
-      print(paste0("Command initialize : json :",json))
       if (!is.null(json)){
-#         if (json$name != self$name) stop("wrong command name")
         if (is.null(json$data)) stop("wrong command data")
         self$data=json$data
       } else {
@@ -62,7 +58,7 @@ Command <- R6Class(
     toJson = function() list(name=unbox(self$name), data=self$data)
   )
 )
- 
+
 WorkflowCommand <- R6Class(
   'WorkflowCommand',
   inherit=Command,
@@ -81,12 +77,12 @@ WorkflowCommand <- R6Class(
     }
   )
 )
- 
+
 UpdateWorkflowCommand <- R6Class(
   'UpdateWorkflowCommand',
   inherit=WorkflowCommand
 )
- 
+
 SetRevWorkflowCommand <- R6Class(
   'SetRevWorkflowCommand',
   inherit=UpdateWorkflowCommand,
@@ -97,7 +93,7 @@ SetRevWorkflowCommand <- R6Class(
     }
   )
 )
-  
+
 StepCommand <- R6Class(
   'StepCommand',
   inherit=UpdateWorkflowCommand,
@@ -108,7 +104,7 @@ StepCommand <- R6Class(
     }
   )
 )
-  
+
 SetStepStateCommand <- R6Class(
   'SetStepStateCommand',
   inherit=StepCommand,
@@ -119,7 +115,7 @@ SetStepStateCommand <- R6Class(
     }
   )
 )
-  
+
 SetStepTaskIdCommand <- R6Class(
   'SetStepTaskIdCommand',
   inherit=StepCommand,
@@ -130,7 +126,7 @@ SetStepTaskIdCommand <- R6Class(
     }
   )
 )
- 
+
 ComputationCommand <- R6Class(
   'ComputationCommand',
   inherit=WorkflowCommand,
@@ -157,7 +153,7 @@ ComputationCommand <- R6Class(
     }
   )
 )
- 
+
 LocalRunStepCommand <- R6Class(
   'LocalRunStepCommand',
   inherit=ComputationCommand,
@@ -165,7 +161,7 @@ LocalRunStepCommand <- R6Class(
     name='LocalRunStepCommand'
   )
 )
- 
+
 ResetStepCommand <- R6Class(
   'ResetStepCommand',
   inherit=ComputationCommand,

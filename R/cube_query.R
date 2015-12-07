@@ -49,6 +49,46 @@ CubeQuery <- R6Class(
     }
   )
 )
+
+WorkflowCubeQuery <- R6Class(
+  'WorkflowCubeQuery',
+  inherit = CubeQuery,
+  private = list(
+    tercenClient = NULL,
+    workflowId = NULL,
+    stepId = NULL
+  ),
+  public = list(
+    initialize = function(tercenClient, workflowId, stepId, json=NULL){
+      super$initialize(json=json)
+      private$tercenClient = tercenClient
+      private$workflowId = workflowId
+      private$stepId = stepId
+    },
+    setResult = function(df){
+      private$tercenClient$setResult(private$workflowId, private$stepId, df)
+    }
+  ) 
+)
+
+TaskCubeQuery <- R6Class(
+  'TaskCubeQuery',
+  inherit = CubeQuery,
+  private = list(
+    tercenClient = NULL,
+    taskId = NULL
+  ),
+  public = list(
+    initialize = function(tercenClient, taskId, json=NULL){
+      super$initialize(json=json)
+      private$tercenClient = tercenClient
+      private$taskId = taskId
+    },
+    setResult = function(df){
+      private$tercenClient$setResultForTaskId(private$taskId, df)
+    }
+  ) 
+)
  
 #' CubeFactor
 #' 

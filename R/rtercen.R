@@ -23,10 +23,19 @@ TercenClient <- R6Class(
   ),
   public = list(
     initialize = function(username=NULL,password=NULL,authToken=NULL, serviceUri="https://tercen.com/service"){
-      private$clientImpl = UserClient$new(username=username,password=password,authToken=authToken, serviceUri=serviceUri)
+      argsMap = parseCommandArgs()
+      if (!is.null(argsMap$slaveUri)){
+        private$clientImpl = SlaveClient$new(username=argsMap$username,
+                                             password=argsMap$password,
+                                             authToken=argsMap$token,
+                                             serviceUri=argsMap$serviceUri,
+                                             slaveUri=argsMap$slaveUri)
+      } else {
+        private$clientImpl = UserClient$new(username=username,password=password,authToken=authToken, serviceUri=serviceUri)
+      }
     },
-    getCubeQuery = function(workflowId, stepId){
-      return (private$clientImpl$getCubeQuery(workflowId, stepId))
+    getCubeQuery = function(workflowId, stepId , taskId=NULL){
+      return (private$clientImpl$getCubeQuery(workflowId, stepId, taskId=taskId))
     },
     executeCubeQuery = function(cubeQuery) {
       return (private$clientImpl$executeCubeQuery(cubeQuery))
@@ -47,7 +56,8 @@ ClientImpl <- R6Class(
     authorization = NULL,
     authToken = NULL,
     authenticate = function() {
-      if (is.null(private$authToken)){
+      if (!is.null(private$username)){
+        if (is.null(private$password)) stop("password is not defined")
         query = list(usernameOrEmail=unbox(private$username), password=unbox(private$password))
         response <- POST(private$getUri("/user/createSession"), body=query , encode = "json")
         if (status_code(response) != 200) stop("Authentication failed")
@@ -72,7 +82,52 @@ ClientImpl <- R6Class(
       } 
       object = content(response)
       return (object) 
-    }  
+    },
+    getCubeQueryFromTaskId = function(taskId){
+      task = self$getTask(taskId)
+      query = list(type=unbox("cube_query_from_stepId") , workflowId=unbox(task$runParam$workflowId), stepId=unbox(task$runParam$stepId))
+      response <- POST(private$getUri("/workflow/query"), add_headers(authorization = private$authToken), body=query, encode = "json")
+      if (status_code(response) != 200){
+        private$faildResponse(response, "getCubeQuery")
+      } 
+      object = content(response)
+      
+      return (TaskCubeQuery$new(taskId, json=object$cubeQuery))
+    },
+    getCubeQueryFromWorkflow = function(workflowId, stepId){
+      query = list(type=unbox("cube_query_from_stepId") , workflowId=unbox(workflowId), stepId=unbox(stepId))
+      response <- POST(private$getUri("/workflow/query"), add_headers(authorization = private$authToken), body=query, encode = "json")
+      if (status_code(response) != 200){
+        private$faildResponse(response, "getCubeQuery")
+      } 
+      object = content(response)
+      
+      return (WorkflowCubeQuery$new(workflowId, stepId, json=object$cubeQuery))
+    },
+    sendCommand = function(command){
+      if (is.null(command)) stop("command is required")
+      if (!inherits(command, "Command")) stop("command is not aCommand object")
+      response = NULL
+      if (inherits(command, "LocalRunStepCommand") || inherits(command, "ResetStepCommand")){
+        url = NULL
+        if (inherits(command, "LocalRunStepCommand")) {
+          url = private$getUri("/workflow/run")
+        } else {
+          url = private$getUri("/workflow/reset")
+        }
+        query = command$toJson()
+        
+        response <- POST(url, add_headers(authorization = private$authToken), body=query , encode = "json")
+        if (status_code(response) != 200){
+          private$faildResponse(response, "sendCommand")
+        } 
+        object = content(response)
+        
+        return (CommandBuffer$new(json=object))
+      } else {
+        stop("unknwon command")
+      }
+    }
   ),
   public = list(
     initialize = function(username=NULL,password=NULL,authToken=NULL, serviceUri="https://tercen.com/service"){
@@ -86,15 +141,20 @@ ClientImpl <- R6Class(
       }
       private$authenticate()
     },
-    getCubeQuery = function(workflowId, stepId){
-      query = list(type=unbox("cube_query_from_stepId") , workflowId=unbox(workflowId), stepId=unbox(stepId))
-      response <- POST(private$getUri("/workflow/query"), add_headers(authorization = private$authToken), body=query, encode = "json")
-      if (status_code(response) != 200){
-        private$faildResponse(response, "getCubeQuery")
-      } 
-      object = content(response)
-      
-      return (CubeQuery$new(json=object$cubeQuery))
+    createComputationTask = function(workflowId,stepId){
+      workflow = self$getWorkflow(workflowId)  
+      command = LocalRunStepCommand$new(workflowId=workflow$id,
+                                        workflowRev=workflow$rev,
+                                        stepId=stepId)
+      commandBuffer = private$sendCommand(command)
+      #       setStepStateCommand = commandBuffer$commands[[1]]
+      setStepTaskIdCommand = commandBuffer$commands[[2]]
+      #       setRevWorkflowCommand = commandBuffer$commands[[3]]
+      taskId = setStepTaskIdCommand$taskId
+      return(taskId)
+    },
+    getCubeQuery = function(workflowId, stepId, taskId=NULL){
+       
     },
     getTask = function(id){
       query = list(type=unbox("task_get_by_id"), id=unbox(id))
@@ -103,9 +163,8 @@ ClientImpl <- R6Class(
         private$faildResponse(response, "getTask")
       } 
       object = content(response)
-      return (object)
-    },
-    
+      return (object$task)
+    }, 
     getWorkflow = function(id){
       response <- GET(private$getUri("/workflow/workflow/", id), add_headers(authorization = private$authToken))
       if (status_code(response) != 200){
@@ -126,9 +185,7 @@ ClientImpl <- R6Class(
     
     executeCubeQuery = function(cubeQuery) {
       
-    },
-    setResult = function(workflowId,stepId,df){
-      
     }
+    
   )
 )

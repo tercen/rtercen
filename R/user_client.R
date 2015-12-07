@@ -1,17 +1,10 @@
-  
+#' UserClient
+#' 
+#' @export
 UserClient <- R6Class(
   'UserClient',
   inherit=ClientImpl,
   private = list(
-    createQueryTask = function(cubeQuery){
-      query = toJSON(cubeQuery$toJson())
-      response <- POST(private$getUri("/tableSchema/cubeQuery"), add_headers(authorization = private$authToken), body=query)
-      if (status_code(response) != 200){
-        private$faildResponse(response, "createQueryTask")
-      } 
-      object = content(response)
-      return (object)
-    },
     waitTaskDone = function(id){
       query = list(type=unbox("task_wait_done"), id=id)
       response <- POST(private$getUri("/task/query"), add_headers(authorization = private$authToken), body=query, encode = "json")
@@ -44,53 +37,50 @@ UserClient <- R6Class(
       object = content(response)
       return (object$name) 
     },
-    sendCommand = function(command){
-      if (is.null(command)) stop("command is required")
-      if (!inherits(command, "Command")) stop("command is not aCommand object")
-      response = NULL
-      if (inherits(command, "LocalRunStepCommand") || inherits(command, "ResetStepCommand")){
-        url = NULL
-        if (inherits(command, "LocalRunStepCommand")) {
-          url = private$getUri("/workflow/run")
-        } else {
-          url = private$getUri("/workflow/reset")
-        }
-        query = command$toJson()
-        
-        response <- POST(url, add_headers(authorization = private$authToken), body=query , encode = "json")
-        if (status_code(response) != 200){
-          private$faildResponse(response, "sendCommand")
-        } 
-        object = content(response)
-        
-        return (CommandBuffer$new(json=object))
-      } else {
-        stop("unknwon command")
-      }
-    },
     sendTaskResult = function(taskId, filename){
       task = private$createTaskResult(taskId, filename)
       taskHolder = private$waitTaskDone(task[["_id"]])
       if (taskHolder$task$state == -1){
         stop(taskHolder$task$errors)
       }
+    },
+    createQueryTask = function(cubeQuery){
+      query = toJSON(cubeQuery$toJson())
+      response <- POST(private$getUri("/tableSchema/cubeQuery"), add_headers(authorization = private$authToken), body=query)
+      if (status_code(response) != 200){
+        private$faildResponse(response, "createQueryTask")
+      } 
+      object = content(response)
+      return (object$taskId)
+    },
+    getCubeQueryFromWorkflow = function(workflowId, stepId){
+      query = list(type=unbox("cube_query_from_stepId") , workflowId=unbox(workflowId), stepId=unbox(stepId))
+      response <- POST(private$getUri("/workflow/query"), add_headers(authorization = private$authToken), body=query, encode = "json")
+      if (status_code(response) != 200){
+        private$faildResponse(response, "getCubeQuery")
+      } 
+      object = content(response)
+      
+      return (WorkflowCubeQuery$new(self, workflowId, stepId, json=object$cubeQuery))
     }
   ),
   public = list(
     initialize = function(username=NULL,password=NULL,authToken=NULL, serviceUri="https://tercen.com/service"){
        super$initialize(username=username,password=password,authToken=authToken, serviceUri=serviceUri)
     },
+    getCubeQuery = function(workflowId, stepId, taskId=NULL){
+      if (is.null(taskId)){
+        return (private$getCubeQueryFromWorkflow(workflowId, stepId))
+      } else {
+        stop("bad params")
+      }
+    },
     executeCubeQuery = function(cubeQuery) {
-      
-      taskRef = private$createQueryTask(cubeQuery)
-      
-      taskHolder = private$waitTaskDone(taskRef$taskId)
-      
-      
+      taskId = private$createQueryTask(cubeQuery)
+      taskHolder = private$waitTaskDone(taskId)
       filename = taskHolder$task$runParam$result$filename
       result = private$getTempFile(filename)
       json = fromTSON(result)
-      
       cube = Cube$new(json=json)
       return (cube)
     },
@@ -104,20 +94,7 @@ UserClient <- R6Class(
       table = ComputedTable$new(df=df)$toTson()
       binaryData = toTSON(table)
       filename = private$setTempFile(binaryData)
-      
-      workflow = self$getWorkflow(workflowId)  
-      command = LocalRunStepCommand$new(workflowId=workflow$id,
-                                        workflowRev=workflow$rev,
-                                        stepId=stepId)
-      
-      commandBuffer = private$sendCommand(command)
-      
-      #       setStepStateCommand = commandBuffer$commands[[1]]
-      setStepTaskIdCommand = commandBuffer$commands[[2]]
-      #       setRevWorkflowCommand = commandBuffer$commands[[3]]
-      
-      taskId = setStepTaskIdCommand$taskId
-      
+      taskId = private$createComputationTask(workflowId,stepId)
       private$sendTaskResult(taskId, filename)
     }
   )
