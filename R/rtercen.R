@@ -10,7 +10,7 @@ library(rtson)
 #' @name rtercen-package
 #' @aliases rtercen
 #' @docType package
-#' @import R6 httr rtson
+#' @import R6 httr rtson jsonlite
 NULL
  
 #' Tercen Client
@@ -22,7 +22,6 @@ TercenClient <- R6Class(
     clientImpl = NULL
   ),
   public = list(
-    
     initialize = function(username=NULL,password=NULL,authToken=NULL, serviceUri="https://tercen.com/service"){
       private$clientImpl = UserClient$new(username=username,password=password,authToken=authToken, serviceUri=serviceUri)
     },

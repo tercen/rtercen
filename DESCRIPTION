@@ -13,7 +13,8 @@ Suggests:
 Imports:
     R6,
     httr,
-    rtson
+    rtson,
+    jsonlite
 URL: https://tercen.com
 BugReports: https://github.com/amaurel/rtercen/issues
 RoxygenNote: 5.0.1
