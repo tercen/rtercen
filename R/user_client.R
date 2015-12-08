@@ -24,7 +24,7 @@ UserClient <- R6Class(
       query = list(type=unbox("task_create") , task=task)
       response <- POST(private$getUri("/task/query"), add_headers(authorization = private$authToken), body=query , encode = "json")
       if (status_code(response) != 200){
-        private$faildResponse(response, "sendTaskResult")
+        private$faildResponse(response, "createTaskResult")
       } 
       object = content(response)
       return (object$task)
