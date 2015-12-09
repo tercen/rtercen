@@ -60,7 +60,7 @@ UserClient <- R6Class(
         private$faildResponse(response, "getCubeQuery")
       } 
       object = content(response)
-      
+       
       return (WorkflowCubeQuery$new(self, workflowId, stepId, json=object$cubeQuery))
     }
   ),

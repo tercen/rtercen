@@ -18,7 +18,7 @@ CubeQuery <- R6Class(
     initialize = function(tercenClient, json=NULL){
       private$tercenClient = tercenClient
       if (!is.null(json)){
-        self$version=json$version
+        self$version=as.character(json$version)
         self$rowColumns = lapply(json$rowColumns, function(each) CubeFactor$new(json=each))
         self$colColumns = lapply(json$colColumns, function(each) CubeFactor$new(json=each))
         self$qtColumns = lapply(json$qtColumns, function(each) CubeFactor$new(json=each))
@@ -29,7 +29,7 @@ CubeQuery <- R6Class(
         if (!is.null(json$sqlExpr)){
           self$sqlExpr = sqlExprFactory(json$sqlExpr)
         }
-        self$schemaIds = json$schemaIds
+        self$schemaIds = as.character(json$schemaIds)
       }
     },
     execute = function() private$tercenClient$executeCubeQuery(self),
@@ -50,6 +50,7 @@ CubeQuery <- R6Class(
       if (!is.null(self$schemaIds)){
         json$schemaIds = self$schemaIds
       }
+      
       return (json)
     }
   )
@@ -104,8 +105,8 @@ CubeFactor <- R6Class(
       self$type=type
       self$name =name
       if (!is.null(json)){
-        self$type=json$type
-        self$name =json$name
+        self$type=as.character(json$type)
+        self$name =as.character(json$name)
       }
     },
     toJson = function(){

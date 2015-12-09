@@ -71,16 +71,15 @@ ClientImpl <- R6Class(
     faildResponse = function(response, msg){
       stop(paste0("Failed : ", msg , " : status=", status_code(response), " body=" , content(response)))
     },
-    getTempFile = function(filename) {
+    getTempFile = function(filename) {       
       if (is.null(filename)) stop("filename cannot be null")
       fname = curl::curl_escape(filename)
-      url = private$getUri("/tempCSVFile/", fname)
-      
+      url = private$getUri("/tempCSVFile/", fname)      
       response <- GET(url, add_headers(authorization = private$authToken))
       if (status_code(response) != 200){
         private$faildResponse(response, "getTempFile")
       } 
-      object = content(response)
+      object = content(response)      
       return (object) 
     },
     getCubeQueryFromTaskId = function(taskId){
@@ -101,7 +100,7 @@ ClientImpl <- R6Class(
         private$faildResponse(response, "getCubeQuery")
       } 
       object = content(response)
-      
+       
       return (WorkflowCubeQuery$new(workflowId, stepId, json=object$cubeQuery))
     },
     sendCommand = function(command){
