@@ -13,6 +13,7 @@ CubeQuery <- R6Class(
     qtColumns=NULL,
     xaxisColumn=NULL,
     colorColumns=NULL,
+    labelColumns=NULL,
     sqlExpr=NULL,
     schemaIds=NULL,
     initialize = function(tercenClient, json=NULL){
@@ -23,6 +24,7 @@ CubeQuery <- R6Class(
         self$colColumns = lapply(json$colColumns, function(each) CubeFactor$new(json=each))
         self$qtColumns = lapply(json$qtColumns, function(each) CubeFactor$new(json=each))
         self$colorColumns = lapply(json$colorColumns, function(each) CubeFactor$new(json=each))
+        self$labelColumns = lapply(json$labelColumns, function(each) CubeFactor$new(json=each))
         if (!is.null(json$xaxisColumn)){
           self$xaxisColumn = CubeFactor$new(json=json$xaxisColumn)
         }
@@ -39,6 +41,7 @@ CubeQuery <- R6Class(
         rowColumns=lapply(self$rowColumns, function(each) each$toJson()),
         colColumns=lapply(self$colColumns, function(each) each$toJson()),
         qtColumns=lapply(self$qtColumns, function(each) each$toJson()),
+        labelColumns=lapply(self$labelColumns, function(each) each$toJson()),
         colorColumns=lapply(self$colorColumns, function(each) each$toJson())
       )
       if (!is.null(self$xaxisColumn)){

@@ -73,8 +73,8 @@ ClientImpl <- R6Class(
     },
     getTempFile = function(filename) {       
       if (is.null(filename)) stop("filename cannot be null")
-      fname = curl::curl_escape(filename)
-      url = private$getUri("/tempCSVFile/", fname)      
+       
+      url = private$getUri("/tempCSVFile/?path=", filename)      
       response <- GET(url, add_headers(authorization = private$authToken))
       if (status_code(response) != 200){
         private$faildResponse(response, "getTempFile")
