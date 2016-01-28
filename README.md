@@ -3,7 +3,7 @@
 ## Install rtercen package
 
 ```
-devtools::install_github("tercen/rtercen")
+devtools::install_github("tercen/rtercen", ref = "1.1")
 ```
 
 ## Running Tercen R operator locally
