@@ -27,7 +27,7 @@ ColumnValues <- R6Class(
         if (is.null(private$subtype)) stop("ColumnValues : subtype is required.")
         if (private$subtype == "float32"){
           private$data = as.double(as.vector(aData))
-        } else if (private$subtype == "uint32" || private$subtype == "int32" private$subtype == "uint16" || private$subtype == "uint8") {
+        } else if (private$subtype == "uint32" || private$subtype == "int32" || private$subtype == "uint16" || private$subtype == "uint8") {
           private$data = as.integer(as.vector(aData))
         } else {
           stop(paste("ColumnValues : unknown subtype : ", private$subtype))
