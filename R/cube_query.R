@@ -51,7 +51,7 @@ CubeQuery <- R6Class(
         json$sqlExpr = self$sqlExpr$toJson()
       }
       if (!is.null(self$schemaIds)){
-        json$schemaIds = self$schemaIds
+        json$schemaIds = I(self$schemaIds)
       }
       
       return (json)

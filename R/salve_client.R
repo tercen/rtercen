@@ -34,6 +34,7 @@ SlaveClient <- R6Class(
     executeCubeQuery = function(cubeQuery) {
       query = cubeQuery$toJson()
       response <- POST(private$getSalveUri("/query/cubeQuery"), add_headers(authorization = private$authToken), body=query , encode = "json")
+    
       if (status_code(response) != 200){
         private$faildResponse(response, "executeCubeQuery")
       }         

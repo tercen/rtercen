@@ -45,8 +45,11 @@ UserClient <- R6Class(
       }
     },
     createQueryTask = function(cubeQuery){
-      query = toJSON(cubeQuery$toJson())
-      response <- POST(private$getUri("/tableSchema/cubeQuery"), add_headers(authorization = private$authToken), body=query)
+#       query = toJSON(cubeQuery$toJson())
+#       response <- POST(private$getUri("/tableSchema/cubeQuery"), add_headers(authorization = private$authToken), body=query)
+      query = cubeQuery$toJson()
+      response <- POST(private$getUri("/tableSchema/cubeQuery"), add_headers(authorization = private$authToken), body=query,  encode = "json")
+       
       if (status_code(response) != 200){
         private$faildResponse(response, "createQueryTask")
       } 
