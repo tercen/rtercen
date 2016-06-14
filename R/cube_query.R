@@ -16,6 +16,7 @@ CubeQuery <- R6Class(
     labelColumns=NULL,
     sqlExpr=NULL,
     schemaIds=NULL,
+    relation=NULL,
     initialize = function(tercenClient, json=NULL){
       private$tercenClient = tercenClient
       if (!is.null(json)){
@@ -32,6 +33,7 @@ CubeQuery <- R6Class(
           self$sqlExpr = sqlExprFactory(json$sqlExpr)
         }
         self$schemaIds = as.character(json$schemaIds)
+        self$relation = relationFromJson(json$relation)
       }
     },
     execute = function() private$tercenClient$executeCubeQuery(self),
@@ -42,7 +44,8 @@ CubeQuery <- R6Class(
         colColumns=lapply(self$colColumns, function(each) each$toJson()),
         qtColumns=lapply(self$qtColumns, function(each) each$toJson()),
         labelColumns=lapply(self$labelColumns, function(each) each$toJson()),
-        colorColumns=lapply(self$colorColumns, function(each) each$toJson())
+        colorColumns=lapply(self$colorColumns, function(each) each$toJson()),
+        relation=self$relation$toJson()
       )
       if (!is.null(self$xaxisColumn)){
         json$xaxisColumn = self$xaxisColumn$toJson()
