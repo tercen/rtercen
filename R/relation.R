@@ -128,8 +128,8 @@ ColumnPair <- R6Class(
       }
     },
     toJson = function(){
-      return (list(lColumns=self$lColumns,
-                   rColumns=self$rColumns))
+      return (list(lColumns=I(self$lColumns),
+                   rColumns=I(self$rColumns)))
     }
   )
 )
