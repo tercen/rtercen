@@ -30,7 +30,7 @@ query = client$getCubeQuery(workflowId, stepId)
 cube = query$execute()
 
 # execute some computation
-computed.df <- ddply(cube$sourceTable$as.data.frame(), c("ids"), summarize, mean = mean(values))
+computed.df <- ddply(cube$sourceTable$as.data.frame(), c(".ids"), summarize, mean = mean(.values))
 
 # send the result to Tercen
 query$setResult(computed.df)
@@ -46,7 +46,7 @@ library(rtercen)
 library(plyr)
   
 query = TercenClient$new()$getCubeQuery()
-computed.df <- ddply(query$execute()$sourceTable$as.data.frame(), c("ids"), summarize, mean = mean(values))
+computed.df <- ddply(query$execute()$sourceTable$as.data.frame(), c(".ids"), summarize, mean = mean(.values))
 query$setResult(computed.df)
 
 ```

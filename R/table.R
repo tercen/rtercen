@@ -71,8 +71,8 @@ ComputedTable <- R6Class(
   private = list(
     fromDataFrame = function(df){
       super$fromDataFrame(df)
-      ids = self$getColumn("ids")
-      if (is.null(ids)) stop("A column named ids is required.")
+      ids = self$getColumn(".ids")
+      if (is.null(ids)) stop("A column named .ids is required.")
       values = ids$getValues()
       data = values$getData()
       if (!is.integer(data)) stop("A column ids must be integer.")
@@ -97,7 +97,7 @@ MatrixTable <- R6Class(
     }
   ),
   public = list(
-    initialize = function(nRows=NULL,nMatrixCols=NULL,nMatrixRows=NULL,idColumnName="ids",columns=NULL,df=NULL,json=NULL){
+    initialize = function(nRows=NULL,nMatrixCols=NULL,nMatrixRows=NULL,idColumnName=".ids",columns=NULL,df=NULL,json=NULL){
       super$initialize(nRows=nRows,columns=columns,df=df,json=json)
       if (is.null(json)){
         if (is.null(nMatrixCols)) stop("Table : nMatrixCols is required.")
