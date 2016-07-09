@@ -16,6 +16,8 @@ relationFromJson = function(json){
     return (UnionRelation$new(json=json))
   } else if (type == 'composite'){
     return (CompositeRelation$new(json=json))
+  } else if (type == 'prefix'){
+    return (PrefixRelation$new(json=json))
   } else {
     stop(paste0('relationFromJson : unknown type ', type))
   }
@@ -51,6 +53,35 @@ SimpleRelation <- R6Class(
     },
     toJson = function(){
       return (list(type=unbox('relation'), id=unbox(self$id)))
+    }
+  )
+)
+
+#' PrefixRelation
+#' 
+#' @export  
+PrefixRelation <- R6Class(
+  'PrefixRelation',
+  public = list(
+    id = NULL,
+    relation = NULL,
+    prefix = NULL,
+    initialize = function(id=NULL, relation=NULL, prefix=NULL,json=NULL){
+      self$id =id
+      self$id =relation
+      self$id =prefix
+      
+      if (!is.null(json)){      
+        self$id =as.character(json$id)
+        self$relation =relationFromJson(json$relation)
+        self$prefix =as.character(json$prefix)
+      }
+    },
+    toJson = function(){
+      return (list(type=unbox('prefix'),
+                   id=unbox(self$id),
+                   relation=self$relation$toJson(),
+                   prefix=unbox(self$prefix)))
     }
   )
 )
