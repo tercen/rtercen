@@ -176,7 +176,7 @@ JoinMeltOperator <- R6Class(
       self$variableName =variableName
       
       if (!is.null(json)){      
-        self$rightRelation = json$rightRelationId
+        self$rightRelationId = json$rightRelationId
         self$names = as.character(json$names)
         self$valueName = json$valueName
         self$variableName = json$variableName
