@@ -6,8 +6,11 @@ Table <- R6Class(
   private = list(
     columns = NULL,
     nRows = NULL,
+    properties = NULL,
+    
     fromJson = function(json){
       private$fromColumns(json$nRows, lapply(json$columns, function(jsonColumn) Column$new(json=jsonColumn)))
+      private$properties = TableProperties$new(json=json$properties)
     },
     fromDataFrame = function(df){
       private$fromColumns(nrow(df), lapply(colnames(df), function(cname) Column$new(name=cname, vector=unlist(df[[cname]]))))
@@ -17,6 +20,7 @@ Table <- R6Class(
       if (is.null(columns)) stop("Table : columns is required.")
       private$columns = columns
       private$nRows = nRows
+      private$properties = TableProperties$new(name=newUUID())
     }
   ),
   public = list(
@@ -29,6 +33,11 @@ Table <- R6Class(
       } else {
         private$fromColumns(nRows,columns)
       }
+    },
+    
+    getName = function() private$properties$name,
+    setName = function(n){
+      private$properties$name = n
     },
     
     getNRows = function() private$nRows,
@@ -58,10 +67,38 @@ Table <- R6Class(
       colnames(d) <- make.names(lapply(private$columns, function(column) column$getName()))
       return (d)
     },
-    toTson = function() list(nRows=tson.int(private$nRows), columns=lapply(private$columns, function(c) c$toTson()))
+    
+    toTson = function() list(nRows=tson.int(private$nRows),
+                             columns=lapply(private$columns, function(c) c$toTson()),
+                             properties=private$properties$toTson())
+     
+    
   ) 
 )
- 
+
+#' ComputedTable
+#' 
+#' @export  
+TableProperties <- R6Class(
+  'TableProperties',
+  public = list(
+    name = NULL,
+    initialize = function(name=NULL, json=NULL){
+      self$name = name
+      if (!is.null(json)){
+        self$name = json$name
+      }
+    },
+    toJson = function(){
+      return (list(name=self$name))
+    },
+    toTson = function(){
+      return (list(name=tson.character(self$name)))
+    }
+  )
+)
+
+
 #' ComputedTable
 #' 
 #' @export  

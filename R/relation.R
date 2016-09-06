@@ -52,7 +52,12 @@ SimpleRelation <- R6Class(
       }
     },
     toJson = function(){
-      return (list(type=unbox('relation'), id=unbox(self$id)))
+      return (list(type=unbox('relation'),
+                   id=unbox(self$id)))
+    },
+    toTson = function(){
+      return (list(type=tson.character('relation'),
+                   id=tson.character(self$id)))
     }
   )
 )
@@ -68,20 +73,30 @@ PrefixRelation <- R6Class(
     prefix = NULL,
     initialize = function(id=NULL, relation=NULL, prefix=NULL,json=NULL){
       self$id =id
-      self$id =relation
-      self$id =prefix
+      self$relation =relation
+      self$prefix =prefix
       
       if (!is.null(json)){      
         self$id =as.character(json$id)
         self$relation =relationFromJson(json$relation)
         self$prefix =as.character(json$prefix)
       }
+      
+      if (is.null(self$relation)) stop('relation is null')
+      if (is.null(self$prefix)) stop('prefix is null')
+      
     },
     toJson = function(){
       return (list(type=unbox('prefix'),
                    id=unbox(self$id),
                    relation=self$relation$toJson(),
                    prefix=unbox(self$prefix)))
+    },
+    toTson = function(){
+      return (list(type=tson.character('prefix'),
+                   id=tson.character(self$id),
+                   relation=self$relation$toTson(),
+                   prefix=tson.character(self$prefix)))
     }
   )
 )
@@ -106,6 +121,11 @@ UnionRelation <- R6Class(
       return (list(type=unbox('union'),
                    id=unbox(self$id),
                    relations=lapply(self$relations, function(each) each$toJson())))
+    },
+    toTson = function(){
+      return (list(type=tson.character('union'),
+                   id=tson.character(self$id),
+                   relations=lapply(self$relations, function(each) each$toTson())))
     }
   )
 )
@@ -130,11 +150,29 @@ CompositeRelation <- R6Class(
         self$joinOperators=lapply(json$joinOperators, joinOperatorFromJson)         
       }
     },
+    addJoinOperator = function(jop){
+      
+      print('addJoinOperator 1')
+      print(length(self$joinOperators))
+      
+      list = self$joinOperators
+      list[[length(list)+1]] = jop
+      self$joinOperators = list 
+      
+      print('addJoinOperator 2')
+      print(length(self$joinOperators))
+    },
     toJson = function(){
       return (list(type=unbox('composite'),
                    id=unbox(self$id),
                    mainRelation=self$mainRelation$toJson(),
                    joinOperators=lapply(self$joinOperators, function(each) each$toJson())))
+    },
+    toTson = function(){
+      return (list(type=tson.character('composite'),
+                   id=tson.character(self$id),
+                   mainRelation=self$mainRelation$toTson(),
+                   joinOperators=lapply(self$joinOperators, function(each) each$toTson())))
     }
   )
 )
@@ -161,6 +199,10 @@ ColumnPair <- R6Class(
     toJson = function(){
       return (list(lColumns=I(self$lColumns),
                    rColumns=I(self$rColumns)))
+    },
+    toTson = function(){
+      return (list(lColumns=self$lColumns,
+                   rColumns=self$rColumns))
     }
   )
 )
@@ -174,6 +216,7 @@ JoinOperator1 <- R6Class(
     leftPair = NULL,
     rightRelation = NULL,
     initialize = function(rightRelation=NULL, leftPair=NULL,json=NULL){
+      
       self$rightRelation =rightRelation
       self$leftPair =leftPair
       
@@ -181,11 +224,18 @@ JoinOperator1 <- R6Class(
         self$rightRelation = relationFromJson(json$rightRelation)
         self$leftPair = ColumnPair$new(json=json$leftPair)
       }
+      
+      if (is.null(self$rightRelation)) stop('rightRelation is null')
     },
     toJson = function(){
       return (list(type=unbox('join'),
                    rightRelation=self$rightRelation$toJson(),
                    leftPair=self$leftPair$toJson()))
+    },
+    toTson = function(){
+      return (list(type=tson.character('join'),
+                   rightRelation=self$rightRelation$toTson(),
+                   leftPair=self$leftPair$toTson()))
     }
   )
 )
@@ -220,6 +270,14 @@ JoinMeltOperator <- R6Class(
                    valueName=unbox(self$valueName),
                    variableName=unbox(self$variableName)
                    ))
+    },
+    toTson = function(){
+      return (list(type=tson.character('melt'), 
+                   rightRelationId=tson.character(self$rightRelationId),
+                   names=self$names,
+                   valueName=tson.character(self$valueName),
+                   variableName=tson.character(self$variableName)
+      ))
     }
   )
 )

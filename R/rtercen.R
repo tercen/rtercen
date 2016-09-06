@@ -22,7 +22,10 @@ TercenClient <- R6Class(
     clientImpl = NULL
   ),
   public = list(
-    initialize = function(username=NULL,password=NULL,authToken=NULL, serviceUri="https://tercen.com/service"){
+    initialize = function(username=options('tercen.username')$tercen.username,
+                          password=options('tercen.password')$tercen.password,
+                          authToken=NULL,
+                          serviceUri="https://tercen.com/service"){
       argsMap = parseCommandArgs()
       if (!is.null(argsMap$slaveUri)){
         private$clientImpl = SlaveClient$new(username=argsMap$username,
@@ -94,8 +97,14 @@ ClientImpl <- R6Class(
       return (TaskCubeQuery$new(taskId, json=object$cubeQuery))
     },
     getCubeQueryFromWorkflow = function(workflowId, stepId){
-      query = list(type=unbox("cube_query_from_stepId") , workflowId=unbox(workflowId), stepId=unbox(stepId))
-      response <- POST(private$getUri("/workflow/query"), add_headers(authorization = private$authToken), body=query, encode = "json")
+      query = list(type=unbox("cube_query_from_stepId") ,
+                   workflowId=unbox(workflowId),
+                   stepId=unbox(stepId),
+                   withOperator=TRUE)
+      response <- POST(private$getUri("/workflow/query"),
+                       add_headers(authorization = private$authToken),
+                       body=query,
+                       encode = "json")
       if (status_code(response) != 200){
         private$faildResponse(response, "getCubeQuery")
       } 
