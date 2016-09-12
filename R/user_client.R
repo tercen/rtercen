@@ -117,7 +117,7 @@ UserClient <- R6Class(
       if (!is.null(df)){
         if (!is.data.frame(df)) stop("df must be of type data.frame")
         table = ComputedTable$new(df=df)
-        result = CubeOperatorTableResult$new(tables=list(table))$toTson()
+        result = CubeOperatorTableResult$new(tables=list(table))
       }  
       
       binaryData = toTSON(result$toTson())

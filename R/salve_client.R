@@ -62,12 +62,12 @@ SlaveClient <- R6Class(
       if (!is.null(df)){
         if (!is.data.frame(df)) stop("df must be of type data.frame")
         table = ComputedTable$new(df=df)
-        result = CubeOperatorTableResult$new(tables=list(table))$toTson()
+        result = CubeOperatorTableResult$new(tables=list(table))
       }  
       
       if (is.null(result)) stop("result is required")
        
-      binaryData = toTSON(list(taskId=tson.character(taskId) , result=result))
+      binaryData = toTSON(list(taskId=tson.character(taskId) , result=result$toTson()))
       
       response <- POST(private$getSalveUri("/query/cubeQueryResult"),
                        add_headers(authorization = private$authToken),
