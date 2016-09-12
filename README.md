@@ -3,7 +3,7 @@
 ## Install rtercen package
 
 ```
-devtools::install_github("tercen/rtercen", ref = "1.1")
+devtools::install_github("tercen/rtercen", ref = "2.5")
 ```
 
 ## Optional configuration

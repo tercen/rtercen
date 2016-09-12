@@ -4,8 +4,7 @@
 \alias{join1}
 \title{join1}
 \usage{
-join1(leftRelation, rightRelation, leftColumns = NULL, rightColumns = NULL,
-  id = NULL)
+join1(leftRelation, rightRelation, leftColumns = NULL, rightColumns = NULL)
 }
 \description{
 join1

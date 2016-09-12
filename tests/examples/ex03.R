@@ -66,7 +66,7 @@ doLinreg = function(dataX, dataY){
       yFit = predict(aLm)
       R2 = 1-(sum((dataY-yFit)^2) / ssY)
       Result = 1;
-      
+
     } else {
       slope = NaN
       intercept = NaN

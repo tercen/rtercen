@@ -18,6 +18,8 @@ relationFromJson = function(json){
     return (CompositeRelation$new(json=json))
   } else if (type == 'prefix'){
     return (PrefixRelation$new(json=json))
+  } else if (type == 'pairwise'){
+    return (PairWiseRelation$new(json=json))
   } else {
     stop(paste0('relationFromJson : unknown type ', type))
   }
@@ -61,45 +63,45 @@ SimpleRelation <- R6Class(
     }
   )
 )
-
-#' PrefixRelation
-#' 
-#' @export  
-PrefixRelation <- R6Class(
-  'PrefixRelation',
-  public = list(
-    id = NULL,
-    relation = NULL,
-    prefix = NULL,
-    initialize = function(id=NULL, relation=NULL, prefix=NULL,json=NULL){
-      self$id =id
-      self$relation =relation
-      self$prefix =prefix
-      
-      if (!is.null(json)){      
-        self$id =as.character(json$id)
-        self$relation =relationFromJson(json$relation)
-        self$prefix =as.character(json$prefix)
-      }
-      
-      if (is.null(self$relation)) stop('relation is null')
-      if (is.null(self$prefix)) stop('prefix is null')
-      
-    },
-    toJson = function(){
-      return (list(type=unbox('prefix'),
-                   id=unbox(self$id),
-                   relation=self$relation$toJson(),
-                   prefix=unbox(self$prefix)))
-    },
-    toTson = function(){
-      return (list(type=tson.character('prefix'),
-                   id=tson.character(self$id),
-                   relation=self$relation$toTson(),
-                   prefix=tson.character(self$prefix)))
-    }
-  )
-)
+# 
+# #' PrefixRelation
+# #' 
+# #' @export  
+# PrefixRelation <- R6Class(
+#   'PrefixRelation',
+#   public = list(
+#     id = NULL,
+#     relation = NULL,
+#     prefix = NULL,
+#     initialize = function(id=NULL, relation=NULL, prefix=NULL,json=NULL){
+#       self$id =id
+#       self$relation =relation
+#       self$prefix =prefix
+#       
+#       if (!is.null(json)){      
+#         self$id =as.character(json$id)
+#         self$relation =relationFromJson(json$relation)
+#         self$prefix =as.character(json$prefix)
+#       }
+#       
+#       if (is.null(self$relation)) stop('relation is null')
+#       if (is.null(self$prefix)) stop('prefix is null')
+#       
+#     },
+#     toJson = function(){
+#       return (list(type=unbox('prefix'),
+#                    id=unbox(self$id),
+#                    relation=self$relation$toJson(),
+#                    prefix=unbox(self$prefix)))
+#     },
+#     toTson = function(){
+#       return (list(type=tson.character('prefix'),
+#                    id=tson.character(self$id),
+#                    relation=self$relation$toTson(),
+#                    prefix=tson.character(self$prefix)))
+#     }
+#   )
+# )
 
 #' UnionRelation
 #' 
@@ -129,6 +131,99 @@ UnionRelation <- R6Class(
     }
   )
 )
+
+#' 
+#' @export 
+GroupByRelation <- R6Class(
+  'GroupByRelation',
+  public = list(
+    id = NULL,
+    relation = NULL,
+    group = NULL,
+    initialize = function(id=NULL,relation=NULL,group=NULL,json=NULL){
+      self$id =id
+      self$relation =relation
+      self$group =group
+      if (!is.null(json)){
+        self$id =as.character(json$id)
+        self$group =as.character(json$group)
+        self$relation=relationFromJson(json$relation)         
+      }
+    },
+    toJson = function(){
+      return (list(type=unbox('group'),
+                   id=unbox(self$id),
+                   group=I(self$group),
+                   relation=self$relation$toJson()))
+    },
+    toTson = function(){
+      return (list(type=tson.character('group'),
+                   id=tson.character(self$id),
+                   group=self$group,
+                   relation=self$relation$toTson()))
+    }
+  )
+)
+
+#' 
+#' @export 
+PairWiseRelation <- R6Class(
+  'PairWiseRelation',
+  public = list(
+    id = NULL,
+    relation = NULL,
+    group = NULL,
+    prefix = NULL,
+    isSymetric = NULL,
+    hasDiagonal = NULL,
+    initialize = function(id=NULL,relation=NULL,group=NULL,prefix=NULL,isSymetric = TRUE,
+                          hasDiagonal = FALSE,json=NULL){
+      self$id =id
+      self$relation =relation
+      self$group =group
+      self$prefix =prefix
+      self$isSymetric =isSymetric
+      self$hasDiagonal =hasDiagonal
+      if (!is.null(json)){
+        self$id = as.character(json$id)
+        self$group = as.character(json$group)
+        self$prefix = as.character(json$prefix)
+        self$isSymetric = as.logical(json$isSymetric)
+        self$hasDiagonal = as.logical(json$hasDiagonal)
+        self$relation=relationFromJson(json$relation)         
+      }
+    },
+    toJson = function(){
+      return (list(type=unbox('pairwise'),
+                   id=unbox(self$id),
+                   group=I(self$group),
+                   prefix=unbox(self$prefix),
+                   isSymetric=unbox(self$isSymetric),
+                   hasDiagonal=unbox(self$hasDiagonal),
+                   relation=self$relation$toJson()))
+    },
+    toTson = function(){
+      return (list(type=tson.character('pairwise'),
+                   id=tson.character(self$id),
+                   group=self$group,
+                   prefix=tson.character(self$prefix),
+                   isSymetric=tson.scalar(self$isSymetric),
+                   hasDiagonal=tson.scalar(self$hasDiagonal),
+                   relation=self$relation$toTson()))
+    }
+  ),
+  active = list(
+    pairGroup = function() {
+      result = removeTablePrefix(self$group)
+      return(addTablePrefix(self$id, result))
+    },
+    idsName = function() {
+      return(addTablePrefix(self$id, 'ids'))
+    }
+    
+  )
+)
+
 
 #' CompositeRelation
 #' 

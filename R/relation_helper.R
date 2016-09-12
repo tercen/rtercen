@@ -16,13 +16,13 @@ join = function(relation, leftColumns=NULL, rightColumns=NULL){
 #' join1
 #' 
 #' @export 
-join1 = function(leftRelation, rightRelation, leftColumns=NULL, rightColumns=NULL, id=NULL){
+join1 = function(leftRelation, rightRelation, leftColumns=NULL, rightColumns=NULL){
   compositeRelation = NULL
   if (inherits(leftRelation, "CompositeRelation")){
     # make a copy
     compositeRelation = relationFromJson(leftRelation$toJson())
   } else {
-    compositeRelation = CompositeRelation$new(mainRelation=leftRelation, joinOperators=list(), id=id)
+    compositeRelation = CompositeRelation$new(mainRelation=leftRelation, joinOperators=list(), id=newUUID())
   }
    
   jop = JoinOperator1$new(rightRelation=rightRelation,
@@ -41,20 +41,15 @@ prefix = function(relation=NULL,prefix=NULL,id=NULL){
   return(PrefixRelation$new(relation=relation,prefix=prefix,id=id))
 }
 
-# Relation prefix(Relation relation, String prefix, [String id]){
-#   return new PrefixRelation(id == null ? relation.id : id, relation, prefix);
-# }
-
-
-# Relation join1(Relation leftRelation, Relation rightRelation,
-#                List<String> leftColumns, List<String> rightColumns, [String id]) {
-#   CompositeRelation compositeRelation;
-#   if (leftRelation is CompositeRelation) {
-#     compositeRelation = leftRelation.copy();
-#   } else {
-#     compositeRelation = new CompositeRelation(leftRelation, [], id);
-#   }
-#   compositeRelation.addJoinOperator(new JoinOperator1(
-#     rightRelation, new ColumnPair(leftColumns, rightColumns)));
-#   return compositeRelation;
-# }
+#' pairwise
+#' 
+#' @export 
+pairwise = function(relation=NULL,group=NULL, prefix=NULL,isSymetric = TRUE,
+                    hasDiagonal = FALSE){
+  return(PairWiseRelation$new(relation=relation,
+                              group=group,
+                              prefix=prefix,
+                              isSymetric=isSymetric,
+                              hasDiagonal=hasDiagonal, 
+                              id=newUUID()))
+}

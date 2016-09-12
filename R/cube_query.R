@@ -84,8 +84,11 @@ WorkflowCubeQuery <- R6Class(
       private$workflowId = workflowId
       private$stepId = stepId
     },
-    setResult = function(df=NULL, result=NULL){
-      private$tercenClient$setResult(private$workflowId, private$stepId, df, result=result)
+    setResult = function(df){
+      private$tercenClient$setResult(private$workflowId, private$stepId, df)
+    },
+    sendResult = function(result){
+      private$tercenClient$setResult(private$workflowId, private$stepId, NULL, result=result)
     }
   ) 
 )
@@ -101,8 +104,11 @@ TaskCubeQuery <- R6Class(
       super$initialize(tercenClient, json=json)
       private$taskId = taskId
     },
-    setResult = function(df=NULL, result=NULL){
-      private$tercenClient$setResultForTaskId(private$taskId, df, result=result)
+    setResult = function(df){
+      private$tercenClient$setResultForTaskId(private$taskId, df)
+    },
+    sendResult = function(result){
+      private$tercenClient$setResultForTaskId(private$taskId, NULL, result=result)
     }
   ) 
 )
