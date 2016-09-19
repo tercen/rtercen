@@ -1,7 +1,7 @@
 Package: rtercen
 Type: Package
 Title: Tercen R client api
-Version: 2.7
+Version: 2.8
 Date: 2015-11-24
 Author: Alexandre Maurel
 Maintainer: Alexandre Maurel <alexandre.maurel@gmail.com>
