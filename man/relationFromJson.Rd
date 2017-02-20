@@ -9,4 +9,3 @@ relationFromJson(json)
 \description{
 relationFromJson
 }
-

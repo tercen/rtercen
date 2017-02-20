@@ -9,4 +9,3 @@ join(relation, leftColumns = NULL, rightColumns = NULL)
 \description{
 join
 }
-

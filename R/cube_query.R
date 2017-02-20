@@ -10,12 +10,8 @@ CubeQuery <- R6Class(
     version=NULL,
     rowColumns=NULL,
     colColumns=NULL,
-    qtColumns=NULL,
-    xaxisColumn=NULL,
-    colorColumns=NULL,
-    labelColumns=NULL,
+    axisQueries=NULL,
     sqlExpr=NULL,
-    schemaIds=NULL,
     relation=NULL,
     operator=NULL,
     initialize = function(tercenClient, json=NULL){
@@ -24,21 +20,14 @@ CubeQuery <- R6Class(
         self$version=as.character(json$version)
         self$rowColumns = lapply(json$rowColumns, function(each) CubeFactor$new(json=each))
         self$colColumns = lapply(json$colColumns, function(each) CubeFactor$new(json=each))
-        self$qtColumns = lapply(json$qtColumns, function(each) CubeFactor$new(json=each))
-        self$colorColumns = lapply(json$colorColumns, function(each) CubeFactor$new(json=each))
-        self$labelColumns = lapply(json$labelColumns, function(each) CubeFactor$new(json=each))
-        if (!is.null(json$xaxisColumn)){
-          self$xaxisColumn = CubeFactor$new(json=json$xaxisColumn)
-        }
+        self$axisQueries = lapply(json$axisQueries, function(each) CubeAxisQuery$new(json=each))
         if (!is.null(json$sqlExpr)){
           self$sqlExpr = sqlExprFactory(json$sqlExpr)
         }
-        self$schemaIds = as.character(json$schemaIds)
         self$relation = relationFromJson(json$relation)
         if (!is.null(json$operator)){
           self$operator = CubeQueryOperator$new(json=json$operator)
-        }
-        
+        } 
       }
     },
     execute = function() private$tercenClient$executeCubeQuery(self),
@@ -47,22 +36,62 @@ CubeQuery <- R6Class(
         version=unbox(self$version),
         rowColumns=lapply(self$rowColumns, function(each) each$toJson()),
         colColumns=lapply(self$colColumns, function(each) each$toJson()),
-        qtColumns=lapply(self$qtColumns, function(each) each$toJson()),
-        labelColumns=lapply(self$labelColumns, function(each) each$toJson()),
-        colorColumns=lapply(self$colorColumns, function(each) each$toJson()),
+        axisQueries=lapply(self$axisQueries, function(each) each$toJson()),
         relation=self$relation$toJson()
       )
-      if (!is.null(self$xaxisColumn)){
-        json$xaxisColumn = self$xaxisColumn$toJson()
-      }
       if (!is.null(self$sqlExpr)){
         json$sqlExpr = self$sqlExpr$toJson()
       }
-      if (!is.null(self$schemaIds)){
-        json$schemaIds = I(self$schemaIds)
-      }
       if (!is.null(self$operator)){
         json$operator = self$operator$toJson()
+      }
+      return (json)
+    }
+  )
+)
+
+#' CubeAxisQuery
+#' 
+#' @export  
+CubeAxisQuery <- R6Class(
+  'CubeAxisQuery',
+  public = list(
+    pointSize=NULL,
+    chartType=NULL,
+    yAxisColumn=NULL,
+    xAxisColumn=NULL,
+    errorColumns=NULL,
+    labelColumns=NULL,
+    colorColumns=NULL,
+    initialize = function(json=NULL){
+      if (!is.null(json)){
+        self$pointSize=as.integer(json$pointSize)
+        self$chartType=as.character(json$chartType)
+        if (!is.null(json$yAxisColumn)){
+          self$yAxisColumn = CubeFactor$new(json=json$yAxisColumn)
+        }
+        if (!is.null(json$xAxisColumn)){
+          self$xAxisColumn = CubeFactor$new(json=json$xAxisColumn)
+        }
+        self$errorColumns = lapply(json$errorColumns, function(each) CubeFactor$new(json=each))
+        self$labelColumns = lapply(json$labelColumns, function(each) CubeFactor$new(json=each))
+        self$colorColumns = lapply(json$colorColumns, function(each) CubeFactor$new(json=each))
+        
+      }
+    },
+    toJson = function(){
+      json = list(
+        pointSize=unbox(self$pointSize),
+        chartType=unbox(self$chartType),
+        errorColumns=lapply(self$errorColumns, function(each) each$toJson()),
+        labelColumns=lapply(self$labelColumns, function(each) each$toJson()),
+        colorColumns=lapply(self$colorColumns, function(each) each$toJson())
+      )
+      if (!is.null(self$yAxisColumn)){
+        json$yAxisColumn = self$yAxisColumn$toJson()
+      }
+      if (!is.null(self$xAxisColumn)){
+        json$xAxisColumn = self$xAxisColumn$toJson()
       }
       
       return (json)
@@ -112,7 +141,7 @@ TaskCubeQuery <- R6Class(
     }
   ) 
 )
- 
+
 #' CubeFactor
 #' 
 #' @export  
@@ -134,7 +163,7 @@ CubeFactor <- R6Class(
     }
   )
 )
-  
+
 CubeQueryOperator = R6Class(
   'CubeQueryOperator',
   public = list(

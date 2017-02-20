@@ -9,4 +9,3 @@ joinOperatorFromJson(json)
 \description{
 joinOperatorFromJson
 }
-

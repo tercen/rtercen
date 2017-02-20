@@ -12,4 +12,3 @@ SQLEquals
 SQLEquals
 }
 \keyword{datasets}
-

@@ -12,4 +12,3 @@ JoinOperator1
 JoinOperator
 }
 \keyword{datasets}
-

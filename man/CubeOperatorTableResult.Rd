@@ -12,4 +12,3 @@ CubeOperatorTableResult
 Result
 }
 \keyword{datasets}
-

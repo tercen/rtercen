@@ -10,4 +10,3 @@ pairwise(relation = NULL, group = NULL, prefix = NULL,
 \description{
 pairwise
 }
-

@@ -17,4 +17,4 @@ Imports:
     jsonlite
 URL: https://tercen.com
 BugReports: https://github.com/amaurel/rtercen/issues
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1

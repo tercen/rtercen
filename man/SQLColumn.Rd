@@ -12,4 +12,3 @@ SQLColumn
 SQLColumn
 }
 \keyword{datasets}
-

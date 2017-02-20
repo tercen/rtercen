@@ -2,10 +2,9 @@
 % Please edit documentation in R/rtercen.R
 \docType{package}
 \name{rtercen-package}
-\alias{rtercen}
 \alias{rtercen-package}
+\alias{rtercen}
 \title{Tercen Client for R}
 \description{
 Access Tercen at \url{http://tercen.com}
 }
-

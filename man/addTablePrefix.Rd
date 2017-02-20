@@ -9,4 +9,3 @@ addTablePrefix(prefix, names)
 \description{
 addTablePrefix
 }
-

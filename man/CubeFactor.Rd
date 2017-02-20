@@ -12,4 +12,3 @@ CubeFactor
 CubeFactor
 }
 \keyword{datasets}
-

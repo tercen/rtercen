@@ -9,4 +9,3 @@ removeTablePrefix(names)
 \description{
 removeTablePrefix
 }
-
