@@ -62,7 +62,10 @@ ClientImpl <- R6Class(
       if (!is.null(private$username)){
         if (is.null(private$password)) stop("password is not defined")
         query = list(usernameOrEmail=unbox(private$username), password=unbox(private$password))
-        response <- POST(private$getUri("/user/createSession"), body=query , encode = "json")
+        response <- POST(private$getUri("/user/createSession"), 
+                         add_headers(Expect = ''),
+                         body=query ,
+                         encode = "json")
         if (status_code(response) != 200) stop("Authentication failed")
         session = content(response)
         private$authToken = session$tocken$tocken
@@ -88,7 +91,10 @@ ClientImpl <- R6Class(
     getCubeQueryFromTaskId = function(taskId){
       task = self$getTask(taskId)
       query = list(type=unbox("cube_query_from_stepId") , workflowId=unbox(task$runParam$workflowId), stepId=unbox(task$runParam$stepId))
-      response <- POST(private$getUri("/workflow/query"), add_headers(authorization = private$authToken), body=query, encode = "json")
+      response <- POST(private$getUri("/workflow/query"),
+                       add_headers(authorization = private$authToken, Expect = ''),
+                       body=query, 
+                       encode = "json")
       if (status_code(response) != 200){
         private$faildResponse(response, "getCubeQuery")
       } 
@@ -102,7 +108,7 @@ ClientImpl <- R6Class(
                    stepId=unbox(stepId),
                    withOperator=TRUE)
       response <- POST(private$getUri("/workflow/query"),
-                       add_headers(authorization = private$authToken),
+                       add_headers(authorization = private$authToken, Expect = ''),
                        body=query,
                        encode = "json")
       if (status_code(response) != 200){
@@ -125,7 +131,9 @@ ClientImpl <- R6Class(
         }
         query = command$toJson()
         
-        response <- POST(url, add_headers(authorization = private$authToken), body=query , encode = "json")
+        response <- POST(url,
+                         add_headers(authorization = private$authToken, Expect = ''),
+                         body=query , encode = "json")
         if (status_code(response) != 200){
           private$faildResponse(response, "sendCommand")
         } 
@@ -166,7 +174,9 @@ ClientImpl <- R6Class(
     },
     getTask = function(id){
       query = list(type=unbox("task_get_by_id"), id=unbox(id))
-      response <- POST(private$getUri("/task/query"), add_headers(authorization = private$authToken), body=query , encode = "json")
+      response <- POST(private$getUri("/task/query"), 
+                       add_headers(authorization = private$authToken, Expect = ''),
+                       body=query , encode = "json")
       if (status_code(response) != 200){
         private$faildResponse(response, "getTask")
       } 
@@ -174,7 +184,8 @@ ClientImpl <- R6Class(
       return (object$task)
     }, 
     getWorkflow = function(id){
-      response <- GET(private$getUri("/workflow/workflow/", id), add_headers(authorization = private$authToken))
+      response <- GET(private$getUri("/workflow/workflow/", id), 
+                      add_headers(authorization = private$authToken))
       if (status_code(response) != 200){
         private$faildResponse(response, "getWorkflow")
       } 

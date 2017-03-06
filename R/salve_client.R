@@ -31,7 +31,7 @@ SlaveClient <- R6Class(
                    withOperator=TRUE)
       
       response <- POST(private$getUri("/workflow/query"),
-                       add_headers(authorization = private$authToken),
+                       add_headers(authorization = private$authToken, Expect = ''),
                        body=query, 
                        encode = "json")
       
@@ -45,7 +45,7 @@ SlaveClient <- R6Class(
     executeCubeQuery = function(cubeQuery) {
       query = cubeQuery$toJson()
       response <- POST(private$getSalveUri("/query/cubeQuery"),
-                       add_headers(authorization = private$authToken),
+                       add_headers(authorization = private$authToken, Expect = ''),
                        body=query,
                        encode = "json")
     
@@ -70,7 +70,7 @@ SlaveClient <- R6Class(
       binaryData = toTSON(list(taskId=tson.character(taskId) , result=result$toTson()))
       
       response <- POST(private$getSalveUri("/query/cubeQueryResult"),
-                       add_headers(authorization = private$authToken),
+                       add_headers(authorization = private$authToken, Expect = ''),
                        body=binaryData)
       
       if (status_code(response) != 200){

@@ -8,7 +8,7 @@ UserClient <- R6Class(
     waitTaskDone = function(id){
       query = list(type=unbox("task_wait_done"), id=id)
       response <- POST(private$getUri("/task/query"),
-                       add_headers(authorization = private$authToken),
+                       add_headers(authorization = private$authToken, Expect = ''),
                        body=query,
                        encode = "json")
       if (status_code(response) != 200){
@@ -28,7 +28,7 @@ UserClient <- R6Class(
       task = list(name=unbox("SendRSessionResult"), runParam=params)
       query = list(type=unbox("task_create") , task=task)
       response <- POST(private$getUri("/task/query"),
-                       add_headers(authorization = private$authToken),
+                       add_headers(authorization = private$authToken, Expect = ''),
                        body=query,
                        encode = "json")
       if (status_code(response) != 200){
@@ -39,7 +39,7 @@ UserClient <- R6Class(
     },
     setTempFile = function(object){
       response <- PUT(private$getUri("/tempFile"),
-                      add_headers(authorization = private$authToken),
+                      add_headers(authorization = private$authToken, Expect = ''),
                       body=object)
       if (status_code(response) != 201){
         private$faildResponse(response, "setTempFile")
@@ -55,46 +55,73 @@ UserClient <- R6Class(
       }
     },
     createQueryTask = function(cubeQuery){
-#       query = toJSON(cubeQuery$toJson())
-#       response <- POST(private$getUri("/tableSchema/cubeQuery"), add_headers(authorization = private$authToken), body=query)
+      #       query = toJSON(cubeQuery$toJson())
+      #       response <- POST(private$getUri("/tableSchema/cubeQuery"), add_headers(authorization = private$authToken), body=query)
+      
       query = cubeQuery$toJson()
       response <- POST(private$getUri("/tableSchema/cubeQuery"),
-                       add_headers(authorization = private$authToken),
+                       add_headers(authorization = private$authToken, Expect = ''),
                        body=query,  encode = "json")
+      
        
+      
       if (status_code(response) != 200){
         private$faildResponse(response, "createQueryTask")
       } 
       object = content(response)
       return (object$taskId)
     },
-
+    
+    getCubeQueryFromTaskId = function(taskId){
+      
+      if (is.null(taskId)) stop('taskId is required');
+      
+      task = self$getTask(taskId)
+      
+      query = list(type=unbox("cube_query_from_stepId"),
+                   workflowId=unbox(task$runParam$workflowId),
+                   stepId=unbox(task$runParam$stepId),
+                   withOperator=TRUE)
+      
+      response <- POST(private$getUri("/workflow/query"),
+                       add_headers(authorization = private$authToken, Expect = ''),
+                       body=query, encode = "json")
+      
+      if (status_code(response) != 200){
+        private$faildResponse(response, "getCubeQueryFromTaskId")
+      }
+      
+      object = content(response)
+      
+      return (TaskCubeQuery$new(self , taskId, json=object$cubeQuery))
+    },
+    
     getCubeQueryFromWorkflow = function(workflowId, stepId){
       query = list(type=unbox("cube_query_from_stepId") ,
                    workflowId=unbox(workflowId),
                    stepId=unbox(stepId),
                    withOperator=TRUE)
       response <- POST(private$getUri("/workflow/query"),
-                       add_headers(authorization = private$authToken),
+                       add_headers(authorization = private$authToken, Expect = ''),
                        body=query,
                        encode = "json")
       if (status_code(response) != 200){
         private$faildResponse(response, "getCubeQuery")
       } 
       object = content(response)
-       
+      
       return (WorkflowCubeQuery$new(self, workflowId, stepId, json=object$cubeQuery))
     }
   ),
   public = list(
     initialize = function(username=NULL,password=NULL,authToken=NULL, serviceUri="https://tercen.com/service"){
-       super$initialize(username=username,password=password,authToken=authToken, serviceUri=serviceUri)
+      super$initialize(username=username,password=password,authToken=authToken, serviceUri=serviceUri)
     },
     getCubeQuery = function(workflowId, stepId, taskId=NULL){
       if (is.null(taskId)){
         return (private$getCubeQueryFromWorkflow(workflowId, stepId))
       } else {
-        stop("bad params")
+        return (private$getCubeQueryFromTaskId(taskId))
       }
     },
     executeCubeQuery = function(cubeQuery) {
@@ -105,6 +132,23 @@ UserClient <- R6Class(
       json = fromTSON(result)
       cube = Cube$new(json=json)
       return (cube)
+    },
+    setResultForTaskId = function(taskId, df, result=NULL){
+      if (is.null(taskId)) stop("taskId is required")
+      if (!is.character(taskId)) stop("taskId must be of type character") 
+      
+      if (!is.null(df)){
+        if (!is.data.frame(df)) stop("df must be of type data.frame")
+        table = ComputedTable$new(df=df)
+        result = CubeOperatorTableResult$new(tables=list(table))
+      }  
+      
+      if (is.null(result)) stop("result is required")
+      
+      binaryData = toTSON(result$toTson())
+      filename = private$setTempFile(binaryData)
+      private$sendTaskResult(taskId, filename)
+      
     },
     setResult = function(workflowId,stepId,df, result=NULL){
       if (is.null(workflowId)) stop("workflowId is required")
