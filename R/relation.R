@@ -16,8 +16,8 @@ relationFromJson = function(json){
     return (UnionRelation$new(json=json))
   } else if (type == 'composite'){
     return (CompositeRelation$new(json=json))
-  } else if (type == 'prefix'){
-    return (PrefixRelation$new(json=json))
+  } else if (type == 'rename'){
+    return (RenameRelation$new(json=json))
   } else if (type == 'pairwise'){
     return (PairWiseRelation$new(json=json))
   } else {
@@ -64,41 +64,47 @@ SimpleRelation <- R6Class(
   )
 )
 
-#' PrefixRelation
+#' RenameRelation
 #' 
 #' @export  
-PrefixRelation <- R6Class(
-  'PrefixRelation',
+RenameRelation <- R6Class(
+  'RenameRelation',
   public = list(
     id = NULL,
     relation = NULL,
-    prefix = NULL,
-    initialize = function(id=NULL, relation=NULL, prefix=NULL,json=NULL){
+    inNames = NULL,
+    outNames = NULL,
+    initialize = function(id=NULL, relation=NULL, inNames=NULL, outNames=NULL, json=NULL){
       self$id =id
       self$relation =relation
-      self$prefix =prefix
+      self$inNames =inNames
+      self$outNames =outNames
       
       if (!is.null(json)){      
         self$id =as.character(json$id)
         self$relation =relationFromJson(json$relation)
-        self$prefix =as.character(json$prefix)
+        self$inNames =as.character(json$inNames)
+        self$outNames =as.character(json$outNames)
       }
       
       if (is.null(self$relation)) stop('relation is null')
-      if (is.null(self$prefix)) stop('prefix is null')
+      if (is.null(self$inNames)) stop('inNames is null')
+      if (is.null(self$outNames)) stop('outNames is null')
       
     },
     toJson = function(){
-      return (list(type=unbox('prefix'),
+      return (list(type=unbox('rename'),
                    id=unbox(self$id),
                    relation=self$relation$toJson(),
-                   prefix=unbox(self$prefix)))
+                   inNames=self$inNames,
+                   outNames=self$outNames))
     },
     toTson = function(){
-      return (list(type=tson.character('prefix'),
+      return (list(type=tson.character('rename'),
                    id=tson.character(self$id),
                    relation=self$relation$toTson(),
-                   prefix=tson.character(self$prefix)))
+                   inNames=self$inNames,
+                   outNames=self$outNames))
     }
   )
 )

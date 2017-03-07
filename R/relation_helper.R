@@ -34,11 +34,11 @@ join1 = function(leftRelation, rightRelation, leftColumns=NULL, rightColumns=NUL
   return(compositeRelation)
 }
 
-#' prefix
+#' renameRelation
 #' 
 #' @export 
-prefix = function(relation=NULL,prefix=NULL,id=NULL){
-  return(PrefixRelation$new(relation=relation,prefix=prefix,id=id))
+renameRelation = function(relation=NULL,inNames=NULL, outNames=NULL,id=NULL){
+  return(RenameRelation$new(relation=relation,inNames=inNames, outNames=outNames, id=id))
 }
 
 #' pairwise
