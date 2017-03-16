@@ -19,7 +19,7 @@ Access tercen.com and upload some data, create a workflow and a data step.
 Configure your data step, and retreive the workflowId and stepId from the url.
 Example : https://tercen.com/core/index.html#ds/{workflowId}/{stepId}
 
-```
+```R
 library(rtercen)
 library(plyr)
 
