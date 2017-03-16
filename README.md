@@ -2,13 +2,13 @@
 
 ## Install rtercen package
 
-```
+```R
 devtools::install_github("tercen/rtercen", ref = "2.10")
 ```
 
 ## Optional configuration
 save the following in .Rprofile file
-```
+```R
 options("tercen.username"="myusername")
 options("tercen.password"="mypassword")
 ```
