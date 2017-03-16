@@ -56,7 +56,7 @@ query$setResult(computed.df)
 
 Go on tercen.com and create an operator, set its source code to the following.
 
-```
+```R
 library(rtercen)
 library(plyr)
   
